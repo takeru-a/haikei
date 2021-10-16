@@ -14,18 +14,46 @@ def getFrameNumber(start:float, fps:int):
     frame_now = int(now * 1000 / fps)
 
     return frame_now
+
+def landmarkchecker(p1,p2, landmarks):
+    get_point = []
+    flag = False
+    for point in landmarks:
+        if p1<=point[1]<=p2:
+            get_point.append(point[0])
+    if len(get_point)>=2:
+        flag = True
+    return flag
+
+def get_landmark(p1,p2, landmarks):
+    get_point = []
+    for point in landmarks:
+        if p1<=point[1]<=p2:
+            get_point.append(point[0])
+    if len(get_point)>=2:
+        get_point.sort()
+        result = [get_point[0],get_point[len(get_point)-1]]
+        return result
+    
+
+
 #point = [top,center,under,left,right]
 def combi(bimg, img, point):
     white = np.ones((bimg.shape), dtype=np.uint8) * 255
+    top = point[10][1]
+    under = point[152][1]
+    start_y = top
+    end_y = start_y + 1
     min_x = point[3][0]
     max_x = point[4][0]
-    if min_x>point[1][0]:
-        min_x=point[1][0]
-    if max_x<point[1][0]:
-        max_x=point[1][0]
-
-    white[point[0][1]:point[2][1],min_x:max_x] = bimg[point[0][1]:point[2][1],min_x:max_x]
-    dwhite = white
+    for i in range(top, under+1):
+        if landmarkchecker(start_y, end_y, point):
+            x_points = get_landmark(start_y, end_y, point)
+            min_x, max_x = x_points[0],x_points[1]
+            white[start_y:end_y,min_x:max_x] = bimg[start_y:end_y,min_x:max_x]
+            dwhite = white
+            start_y = end_y
+        end_y += 1
     img[dwhite==[255, 255, 255]] = bimg[dwhite==[255, 255, 255]]
 
 def drawFace(img, landmarks):
@@ -43,9 +71,10 @@ def drawFace(img, landmarks):
         landmark_point.append([landmark_x, landmark_y, landmark_z])
   
     if len(landmark_point) != 0:
-        point = [landmark_point[10],landmark_point[19],landmark_point[152],landmark_point[234],landmark_point[454]]
-        combi(bimg, img, point)
-        bimg = bimg
+        for i in range(0, len(landmark_point)):
+            cv2.circle(img, (int(landmark_point[i][0]),int(landmark_point[i][1])), 1, (0, 255, 0), 1)
+        combi(bimg, img, landmark_point)
+       
     """
         #top
         cv2.circle(img,(landmark_point[10][0],landmark_point[10][1] ), 7, (255,0,0), 3)
