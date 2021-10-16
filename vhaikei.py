@@ -30,10 +30,10 @@ def get_landmark(p1,p2, landmarks):
     for point in landmarks:
         if p1<=point[1]<=p2:
             get_point.append(point[0])
-    if len(get_point)>=2:
-        get_point.sort()
-        result = [get_point[0],get_point[len(get_point)-1]]
-        return result
+    
+    get_point.sort()
+    result = [get_point[0],get_point[len(get_point)-1]]
+    return result
     
 
 
@@ -52,7 +52,9 @@ def combi(bimg, img, point):
             min_x, max_x = x_points[0],x_points[1]
             white[start_y:end_y,min_x:max_x] = bimg[start_y:end_y,min_x:max_x]
             dwhite = white
-            start_y = end_y
+            #28回に１回スタート位置が変更する
+            if end_y%28==0:
+                start_y = end_y
         end_y += 1
     img[dwhite==[255, 255, 255]] = bimg[dwhite==[255, 255, 255]]
 
@@ -71,22 +73,12 @@ def drawFace(img, landmarks):
         landmark_point.append([landmark_x, landmark_y, landmark_z])
   
     if len(landmark_point) != 0:
+        """
         for i in range(0, len(landmark_point)):
             cv2.circle(img, (int(landmark_point[i][0]),int(landmark_point[i][1])), 1, (0, 255, 0), 1)
+            """
         combi(bimg, img, landmark_point)
-       
-    """
-        #top
-        cv2.circle(img,(landmark_point[10][0],landmark_point[10][1] ), 7, (255,0,0), 3)
-        #left
-        cv2.circle(img,(landmark_point[234][0],landmark_point[234][1] ), 7, (255,255,0), 3)
-        #right
-        cv2.circle(img,(landmark_point[454][0],landmark_point[454][1] ), 7, (0,0,0), 3)
-        #center
-        cv2.circle(img,(landmark_point[19][0],landmark_point[19][1] ), 7, (0,255,0), 3)
-        #under
-        cv2.circle(img,(landmark_point[152][0],landmark_point[152][1] ), 7, (0,0,255), 3)
-    """
+     
        
     
 
